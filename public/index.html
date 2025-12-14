@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jessie Minecraft SMP | JMSMP v1.21.8</title>
+    <style>
+        :root {
+            --primary: #182AA8;
+            --secondary: #AA00AA;
+            --accent: #2D439D;
+            --background: #426F84;
+            --light: #DEDEDE;
+            --dark: #0f1419;
+            --darker: #0a0e12;
+            --neon-glow: 0 0 15px currentColor, 0 0 30px currentColor;
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at top right, var(--dark), var(--darker)),
+                       linear-gradient(135deg, var(--background) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        /* Плавные переходы */
+        * {
+            transition: var(--transition);
+        }
+
+        /* Неоновые эффекты - УЛУЧШЕННЫЕ */
+        .neon-border {
+            position: relative;
+            border: 2px solid var(--primary);
+            background: rgba(24, 42, 168, 0.1);
+            backdrop-filter: blur(10px);
+            animation: neon-border-pulse 4s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg, 
+                transparent, 
+                rgba(24, 42, 168, 0.3), 
+                rgba(170, 0, 170, 0.3), 
+                transparent
+            );
+            animation: border-shine 6s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes neon-border-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 10px var(--primary), 
+                          0 0 20px var(--primary),
+                          inset 0 0 10px rgba(24, 42, 168, 0.3);
+                border-color: var(--primary);
+            }
+            50% { 
+                box-shadow: 0 0 25px var(--secondary), 
+                          0 0 50px var(--secondary),
+                          inset 0 0 15px rgba(170, 0, 170, 0.4);
+                border-color: var(--secondary);
+            }
+        }
+
+        @keyframes border-shine {
+            0% { transform: rotate(45deg) translateX(-100%) translateY(-100%); }
+            100% { transform: rotate(45deg) translateX(100%) translateY(100%); }
+        }
+
+        /* Glass morphism эффекты */
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top left, rgba(24, 42, 168, 0.1), transparent 50%);
+            z-index: -1;
+        }
+
+        /* Падающие частицы - ПЕРЕРАБОТАННЫЕ */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+            user-select: none;
+            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Шапка - УЛУЧШЕННАЯ */
+        header {
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(30px) saturate(200%);
+            padding: 1.2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid rgba(24, 42, 168, 0.3);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        header.scrolled {
+            padding: 1rem 4rem;
+            background: rgba(10, 14, 18, 0.98);
+        }
+
+        .logo {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(24, 42, 168, 0.8);
+            font-family: 'Monaco', 'Consolas', 'JetBrains Mono', monospace;
+            letter-spacing: -1px;
+        }
+
+        .logo::after {
+            content: " v1.21.8";
+            font-size: 0.9rem;
+            vertical-align: super;
+            color: var(--light);
+            opacity: 0.7;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        nav a:hover::before {
+            left: 100%;
+        }
+
+        nav a:hover {
+            background: rgba(24, 42, 168, 0.2);
+            transform: translateY(-3px) scale(1.05);
+            border-color: rgba(24, 42, 168, 0.5);
+            box-shadow: 0 10px 30px rgba(24, 42, 168, 0.3);
+        }
+
+        /* Профиль и уведомления - ПЕРЕРАБОТАННЫЕ */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 2rem;
+            padding: 0.8rem;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .notification-bell:hover {
+            background: rgba(170, 0, 170, 0.2);
+            transform: scale(1.15) rotate(12deg);
+            box-shadow: 0 0 20px rgba(170, 0, 170, 0.4);
+        }
+
+        .notification-count {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: linear-gradient(135deg, #ff4444, #ff6b6b);
+            color: white;
+            border-radius: 50%;
+            padding: 4px 9px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            min-width: 22px;
+            text-align: center;
+            animation: notification-pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+        }
+
+        @keyframes notification-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+            }
+            50% { 
+                transform: scale(1.2);
+                box-shadow: 0 0 25px rgba(255, 107, 107, 0.9);
+            }
+        }
+
+        .profile-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(24, 42, 168, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(24, 42, 168, 0.6);
+        }
+
+        .profile-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: btn-shine 3s linear infinite;
+        }
+
+        @keyframes btn-shine {
+            0% { transform: rotate(45deg) translateX(-100%) translateY(-100%); }
+            100% { transform: rotate(45deg) translateX(100%) translateY(100%); }
+        }
+
+        .season-selector {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(45, 67, 157, 0.5);
+            border-radius: 15px;
+            padding: 0.8rem 1.5rem;
+            color: var(--light);
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .season-selector:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(45, 67, 157, 0.3);
+        }
+
+        /* Главный контент - ПЕРЕРАБОТАННЫЙ */
+        .hero {
+            padding: 180px 4rem 4rem;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(24, 42, 168, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(170, 0, 170, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(66, 111, 132, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: background-float 20s ease-in-out infinite;
+        }
+
+        @keyframes background-float {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(180deg); }
+        }
+
+        .hero h1 {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--light), var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(24, 42, 168, 0.8);
+            animation: title-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes title-glow {
+            0%, 100% { text-shadow: 0 0 40px rgba(24, 42, 168, 0.8), 0 0 80px rgba(170, 0, 170, 0.6); }
+            50% { text-shadow: 0 0 60px rgba(24, 42, 168, 1), 0 0 120px rgba(170, 0, 170, 0.8); }
+        }
+
+        .hero p {
+            font-size: 1.8rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 600px;
+        }
+
+        /* Таймер сезона - УЛУЧШЕННЫЙ */
+        .season-timer {
+            padding: 3rem;
+            border-radius: 25px;
+            margin: 4rem 0;
+            border: 3px solid rgba(45, 67, 157, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .season-timer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(20px);
+            z-index: -1;
+        }
+
+        .season-timer h3 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .timer-digits {
+            font-size: 3rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(170, 0, 170, 0.6);
+            animation: timer-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes timer-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Кнопки - УЛУЧШЕННЫЕ */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 1.5rem 4rem;
+            border: none;
+            border-radius: 35px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            margin: 2rem;
+            box-shadow: 0 15px 35px rgba(24, 42, 168, 0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.08);
+            box-shadow: 0 25px 50px rgba(24, 42, 168, 0.7);
+        }
+
+        /* Модальные окна - ПЕРЕРАБОТАННЫЕ */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(15px);
+            animation: modal-bg-appear 0.4s ease-out;
+        }
+
+        @keyframes modal-bg-appear {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.95), rgba(10, 14, 18, 0.98));
+            margin: 8% auto;
+            padding: 4rem;
+            border-radius: 30px;
+            border: 3px solid var(--primary);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+            max-width: 700px;
+            position: relative;
+            animation: modal-slide-up 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modal-slide-up {
+            from { 
+                opacity: 0;
+                transform: translateY(100px) scale(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .close {
+            position: absolute;
+            right: 2rem;
+            top: 2rem;
+            font-size: 2.5rem;
+            cursor: pointer;
+            color: var(--light);
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            color: var(--secondary);
+            transform: rotate(90deg) scale(1.1);
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Формы - УЛУЧШЕННЫЕ */
+        .form-group {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 1rem;
+            color: var(--light);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            background: rgba(255,255,255,0.08);
+            color: var(--light);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 25px rgba(24, 42, 168, 0.4);
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        /* Уведомления - ПЕРЕРАБОТАННЫЕ */
+        .notification-popup {
+            position: fixed;
+            top: 120px;
+            right: 30px;
+            background: rgba(15, 20, 25, 0.98);
+            border: 2px solid var(--secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            display: none;
+            z-index: 1500;
+            backdrop-filter: blur(30px);
+            animation: notification-slide 0.4s ease-out;
+        }
+
+        @keyframes notification-slide {
+            from { 
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification-item {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+            animation: notification-appear 0.3s ease-out;
+        }
+
+        @keyframes notification-appear {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Аутентификация */
+        .auth-section {
+            display: none;
+        }
+
+        .auth-section.active {
+            display: block;
+            animation: section-fade 0.5s ease-out;
+        }
+
+        @keyframes section-fade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Подвал */
+        footer {
+            background: rgba(10, 14, 18, 0.95);
+            padding: 4rem;
+            margin-top: 6rem;
+            border-top: 3px solid rgba(24, 42, 168, 0.3);
+            position: relative;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-links h4 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            text-shadow: 0 0 10px rgba(170, 0, 170, 0.5);
+        }
+
+        .footer-links a {
+            color: var(--light);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            transform: translateX(10px);
+            color: var(--primary);
+        }
+
+        /* Анимации для скролла */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Падающие частицы -->
+    <div id="particles-container"></div>
+
+    <!-- Шапка -->
+    <header id="main-header">
+        <div class="logo">JMSMP</div>
+        <nav>
+            <ul>
+                <li><a href="#home" class="nav-link">🏠 Главная</a></li>
+                <li><a href="#wiki" class="nav-link">📚 Вики</a></li>
+                <li><a href="#team" class="nav-link">👥 Команда</a></li>
+                <li><a href="#faq" class="nav-link">❓ FAQ</a></li>
+                <li><a href="#gallery" class="nav-link">🖼️ Галерея</a></li>
+            </ul>
+        </nav>
+        <div class="user-menu">
+            <div class="notification-bell" onclick="toggleNotifications()">
+                🔔 <span class="notification-count" id="notification-count">0</span>
+            </div>
+            <button class="profile-btn" id="profile-btn" onclick="toggleAuthModal()">🚪 Войти</button>
+            <select class="season-selector" id="season-selector">
+                <option value="winter">❄️ Зима</option>
+                <option value="spring">🌱 Весна</option>
+                <option value="summer">☀️ Лето</option>
+                <option value="autumn">🍂 Осень</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Попup уведомлений -->
+    <div class="notification-popup glass" id="notification-popup">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>🔔 Уведомления</h3>
+            <button onclick="clearNotifications()" style="background: none; border: none; color: var(--secondary); cursor: pointer; font-size: 0.9rem;">
+                Очистить все
+            </button>
+        </div>
+        <div id="notification-list">
+            <div class="notification-item">
+                <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">Добро пожаловать!</div>
+                <div>Вы успешно зашли на сайт JMSMP</div>
+                <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">Только что</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Главный экран -->
+    <section class="hero" id="home">
+        <h1 class="animate-on-scroll">Jessie Minecraft SMP</h1>
+        <p class="animate-on-scroll">Добро пожаловать на самый уютный и современный Minecraft сервер!</p>
+        
+        <div class="season-timer glass animate-on-scroll">
+            <h3>⏳ До конца сезона осталось:</h3>
+            <div class="timer-digits" id="season-timer">1 год 3 месяца 1 неделя 6 дней 21 час</div>
+        </div>
+
+        <button class="btn-primary neon-border animate-on-scroll" onclick="startPlaying()">
+            🎮 Начать играть
+        </button>
+
+        <div class="server-info glass animate-on-scroll" style="margin-top: 3rem; padding: 2rem; max-width: 600px;">
+            <h3 style="color: var(--primary); margin-bottom: 1rem;">🌐 Информация о сервере</h3>
+            <p>IP сервера будет доступен после одобрения вашей анкеты</p>
+            <p style="margin-top: 1rem;">📥 Скачайте лаунчер: 
+                <a href="https://easylauncher.org" style="color: var(--secondary); text-decoration: none; font-weight: 600;">
+                    easylauncher.org
+                </a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Модальное окно авторизации -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close" onclick="closeAuthModal()">&times;</span>
+            
+            <!-- Логин -->
+            <div id="login-section" class="auth-section active">
+                <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary);">🔑 Вход в аккаунт</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>👤 Никнейм:</label>
+                        <input type="text" class="form-control" id="login-username" placeholder="Введите ваш никнейм" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Пароль:</label>
+                        <input type="password" class="form-control" id="login-password" placeholder="Введите ваш пароль" required>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 2rem;">Войти</button>
+                </form>
+                <p style="text-align: center; margin-top: 2rem; opacity: 0.8;">
+                    Нет аккаунта? <a href="#" onclick="showRegister()" style="color: var(--secondary); font-weight: 600;">Создать аккаунт</a>
+                </p>
+            </div>
+
+            <!-- Регистрация -->
+            <div id="register-section" class="auth-section">
+                <h2 style="text-align: center; margin-bottom: 3rem; color: var(--secondary);">✨ Регистрация</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label>👤 Никнейм:</label>
+                        <input type="text" class="form-control" id="reg-username" placeholder="Придумайте никнейм" required>
+                        <div id="username-feedback" style="font-size: 0.9rem; margin-top: 0.5rem;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>📧 Email:</label>
+                        <input type="email" class="form-control" id="reg-email" placeholder="example@mail.ru" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Пароль:</label>
+                        <input type="password" class="form-control" id="reg-password" placeholder="Не менее 6 символов" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Подтверждение пароля:</label>
+                        <input type="password" class="form-control" id="reg-confirm" placeholder="Повторите пароль" required>
+                        <div id="password-feedback" style="font-size: 0.9rem; margin-top: 0.5rem;"></div>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Создать аккаунт</button>
+                </form>
+                <p style="text-align: center; margin-top: 2rem; opacity: 0.8;">
+                    Уже есть аккаунт? <a href="#" onclick="showLogin()" style="color: var(--primary); font-weight: 600;">Войти</a>
+                </p>
+            </div>
+
+            <!-- Профиль -->
+            <div id="profile-section" class="auth-section">
+                <div id="profile-content">
+                    <!-- Контент будет генерироваться динамически -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p style="text-align: center; margin-bottom: 3rem; font-size: 1rem; opacity: 0.8; line-height: 1.6;">
+            ⚠️ Сервер JMSMP не относится к Mojang Studios или Microsoft. Не является официальным продуктом Minecraft.
+        </p>
+        
+        <div class="footer-links">
+            <div class="navigation">
+                <h4>🧭 Навигация</h4>
+                <a href="#home">🏠 Главная</a>
+                <a href="#wiki">📚 Вики</a>
+                <a href="#faq">❓ FAQ</a>
+                <a href="#gallery">🖼️ Галерея</a>
+                <a href="#team">👥 Команда</a>
+            </div>
+            <div class="contacts">
+                <h4>📞 Связь с нами</h4>
+                <a href="#">💬 Discord</a>
+                <a href="#">📱 Telegram</a>
+                <a href="#">👥 ВКонтакте</a>
+                <a href="#">📧 Email</a>
+            </div>
+        </div>
+        
+        <p style="text-align: center; margin-top: 3rem; opacity: 0.7; font-size: 1.1rem;">
+            🗓️ Открыт с 21 апреля 2024 - 2025
+        </p>
+        
+        <button onclick="scrollToTop()" class="btn-primary" style="margin: 3rem auto; display: block; padding: 1rem 3rem;">⬆️ Наверх</button>
+    </footer>
+
+    <script>
+        // ===== УЛУЧШЕННАЯ СИСТЕМА ДАННЫХ =====
+        class JMSMPStorage {
+            constructor() {
+                this.users = JSON.parse(localStorage.getItem('jmsmp_users')) || this.initializeDefaultUsers();
+                this.applications = JSON.parse(localStorage.getItem('jmsmp_applications')) || [];
+                this.photos = JSON.parse(localStorage.getItem('jmsmp_photos')) || [];
+                this.currentUser = JSON.parse(localStorage.getItem('jmsmp_currentUser')) || null;
+                this.notifications = JSON.parse(localStorage.getItem('jmsmp_notifications')) || this.initializeDefaultNotifications();
+                this.saveAll();
+            }
+
+            initializeDefaultUsers() {
+                return [{
+                    username: 'IshiKavai',
+                    email: 'ishi@jmsmp.ru',
+                    password: 'SolusMC_25002008',
+                    role: 'Владелец сайта',
+                    registrationDate: new Date().toISOString(),
+                    lastSeen: new Date().toISOString(),
+                    applicationStatus: 'accepted',
+                    avatar: null,
+                    banner: null,
+                    photos: []
+                }];
+            }
+
+            initializeDefaultNotifications() {
+                return [{
+                    id: Date.now(),
+                    title: 'Добро пожаловать на JMSMP!',
+                    message: 'Рады видеть вас на нашем сервере. Начните с регистрации аккаунта!',
+                    date: new Date().toISOString(),
+                    read: false,
+                    type: 'welcome'
+                }];
+            }
+
+            saveAll() {
+                localStorage.setItem('jmsmp_users', JSON.stringify(this.users));
+                localStorage.setItem('jmsmp_applications', JSON.stringify(this.applications));
+                localStorage.setItem('jmsmp_photos', JSON.stringify(this.photos));
+                localStorage.setItem('jmsmp_currentUser', JSON.stringify(this.currentUser));
+                localStorage.setItem('jmsmp_notifications', JSON.stringify(this.notifications));
+            }
+
+            addUser(user) {
+                this.users.push(user);
+                this.saveAll();
+            }
+
+            findUser(username) {
+                return this.users.find(u => u.username === username);
+            }
+
+            updateUser(username, updates) {
+                const user = this.findUser(username);
+                if (user) {
+                    Object.assign(user, updates);
+                    this.saveAll();
+                }
+            }
+
+            addNotification(notification) {
+                this.notifications.unshift({
+                    id: Date.now(),
+                    ...notification,
+                    date: new Date().toISOString(),
+                    read: false
+                });
+                this.saveAll();
+            }
+
+            markNotificationsRead() {
+                this.notifications.forEach(n => n.read = true);
+                this.saveAll();
+            }
+
+            clearNotifications() {
+                this.notifications = [];
+                this.saveAll();
+            }
+        }
+
+        const storage = new JMSMPStorage();
+
+        // ===== УЛУЧШЕННАЯ СИСТЕМА ЧАСТИЦ =====
+        class ParticleSystem {
+            constructor() {
+                this.container = document.getElementById('particles-container');
+                this.particles = {
+                    winter: ['❄️', '⛄', '🧊', '🌨️'],
+                    spring: ['🌸', '🌱', '🌷', '🐦', '🌦️'],
+                    summer: ['🌻', '☀️', '🌊', '🏖️', '🌴'],
+                    autumn: ['🍂', '🍁', '🌾', '🌧️', '🍄']
+                };
+            }
+
+            createParticles(season) {
+                this.container.innerHTML = '';
+                const seasonParticles = this.particles[season] || this.particles.winter;
+                
+                for (let i = 0; i < 40; i++) {
+                    setTimeout(() => {
+                        this.createParticle(seasonParticles, i);
+                    }, i * 150);
+                }
+            }
+
+            createParticle(particles, index) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.innerHTML = particles[Math.floor(Math.random() * particles.length)];
+                
+                const size = Math.random() * 30 + 20;
+                particle.style.fontSize = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `-${size}px`;
+                particle.style.opacity = Math.random() * 0.8 + 0.2;
+                
+                const duration = Math.random() * 10 + 8;
+                const delay = Math.random() * 5;
+                particle.style.animation = `
+                    fall ${duration}s cubic-bezier(0.4, 0, 0.2, 1) infinite ${delay}s,
+                    swing ${duration * 2}s ease-in-out infinite ${delay}s
+                `;
+                
+                this.container.appendChild(particle);
+            }
+        }
+
+        const particleSystem = new ParticleSystem();
+
+        // ===== УЛУЧШЕННЫЙ ТАЙМЕР СЕЗОНА =====
+        class SeasonTimer {
+            constructor() {
+                this.endDate = new Date('2025-07-01T00:00:00');
+                this.timerElement = document.getElementById('season-timer');
+            }
+
+            update() {
+                const now = new Date();
+                const diff = this.endDate - now;
+
+                if (diff <= 0) {
+                    this.timerElement.textContent = '🎉 Сезон завершен!';
+                    this.timerElement.style.background = 'linear-gradient(135deg, #00ff00, #00cc00)';
+                    return;
+                }
+
+                const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+                const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+                const weeks = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24 * 7));
+                const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                this.timerElement.textContent = 
+                    `${years}г ${months}м ${weeks}н ${days}д ${hours}ч ${minutes}м`;
+            }
+
+            start() {
+                this.update();
+                setInterval(() => this.update(), 60000); // Обновлять каждую минуту
+            }
+        }
+
+        const seasonTimer = new SeasonTimer();
+
+        // ===== УЛУЧШЕННАЯ СИСТЕМА УВЕДОМЛЕНИЙ =====
+        class NotificationSystem {
+            constructor() {
+                this.countElement = document.getElementById('notification-count');
+                this.listElement = document.getElementById('notification-list');
+                this.popupElement = document.getElementById('notification-popup');
+            }
+
+            updateCount() {
+                const unreadCount = storage.notifications.filter(n => !n.read).length;
+                this.countElement.textContent = unreadCount;
+                this.countElement.style.display = unreadCount > 0 ? 'block' : 'none';
+            }
+
+            updateList() {
+                const notifications = storage.notifications.slice(0, 8);
+                this.listElement.innerHTML = notifications.map(notif => `
+                    <div class="notification-item" onclick="markNotificationRead(${notif.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <strong style="color: ${this.getNotificationColor(notif.type)};">${notif.title}</strong>
+                            ${!notif.read ? '<span style="color: var(--secondary); font-size: 0.7rem;">● NEW</span>' : ''}
+                        </div>
+                        <div>${notif.message}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">
+                            ${this.formatDate(notif.date)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            getNotificationColor(type) {
+                const colors = {
+                    'welcome': 'var(--primary)',
+                    'success': '#00ff00',
+                    'warning': '#ffff00',
+                    'error': '#ff4444',
+                    'info': 'var(--accent)'
+                };
+                return colors[type] || 'var(--light)';
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diff = now - date;
+                
+                if (diff < 60000) return 'Только что';
+                if (diff < 3600000) return `${Math.floor(diff / 60000)} мин назад`;
+                if (diff < 86400000) return `${Math.floor(diff / 3600000)} ч назад`;
+                return date.toLocaleDateString('ru-RU');
+            }
+
+            togglePopup() {
+                this.popupElement.style.display = this.popupElement.style.display === 'block' ? 'none' : 'block';
+                if (this.popupElement.style.display === 'block') {
+                    this.updateList();
+                }
+            }
+        }
+
+        const notificationSystem = new NotificationSystem();
+
+        // ===== УЛУЧШЕННАЯ СИСТЕМА АУТЕНТИФИКАЦИИ =====
+        class AuthSystem {
+            constructor() {
+                this.loginForm = document.getElementById('login-form');
+                this.registerForm = document.getElementById('register-form');
+                this.profileButton = document.getElementById('profile-btn');
+                this.setupEventListeners();
+                this.updateUI();
+            }
+
+            setupEventListeners() {
+                this.loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+                this.registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+                
+                // Валидация в реальном времени
+                document.getElementById('reg-username').addEventListener('input', (e) => this.validateUsername(e.target.value));
+                document.getElementById('reg-password').addEventListener('input', (e) => this.validatePassword(e.target.value));
+                document.getElementById('reg-confirm').addEventListener('input', (e) => this.validatePasswordConfirmation(e.target.value));
+            }
+
+            validateUsername(username) {
+                const feedback = document.getElementById('username-feedback');
+                if (username.length < 3) {
+                    feedback.textContent = '❌ Никнейм слишком короткий (мин. 3 символа)';
+                    feedback.style.color = '#ff4444';
+                    return false;
+                }
+                if (storage.findUser(username)) {
+                    feedback.textContent = '❌ Этот никнейм уже занят';
+                    feedback.style.color = '#ff4444';
+                    return false;
+                }
+                feedback.textContent = '✅ Никнейм доступен';
+                feedback.style.color = '#00ff00';
+                return true;
+            }
+
+            validatePassword(password) {
+                const feedback = document.getElementById('password-feedback');
+                if (password.length < 6) {
+                    feedback.textContent = '❌ Пароль слишком короткий (мин. 6 символов)';
+                    feedback.style.color = '#ff4444';
+                    return false;
+                }
+                feedback.textContent = '✅ Пароль надежный';
+                feedback.style.color = '#00ff00';
+                return true;
+            }
+
+            validatePasswordConfirmation(confirm) {
+                const password = document.getElementById('reg-password').value;
+                const feedback = document.getElementById('password-feedback');
+                if (confirm !== password) {
+                    feedback.textContent = '❌ Пароли не совпадают';
+                    feedback.style.color = '#ff4444';
+                    return false;
+                }
+                feedback.textContent = '✅ Пароли совпадают';
+                feedback.style.color = '#00ff00';
+                return true;
+            }
+
+            handleLogin(e) {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+
+                const user = storage.findUser(username);
+                if (user && user.password === password) {
+                    storage.currentUser = user;
+                    storage.updateUser(username, { lastSeen: new Date().toISOString() });
+                    storage.addNotification({
+                        title: 'Успешный вход',
+                        message: `Добро пожаловать, ${username}!`,
+                        type: 'success'
+                    });
+                    
+                    this.updateUI();
+                    showProfile();
+                    closeAuthModal();
+                } else {
+                    this.showError('Неверный никнейм или пароль!');
+                }
+            }
+
+            handleRegister(e) {
+                e.preventDefault();
+                const username = document.getElementById('reg-username').value;
+                const email = document.getElementById('reg-email').value;
+                const password = document.getElementById('reg-password').value;
+                const confirm = document.getElementById('reg-confirm').value;
+
+                if (!this.validateUsername(username) || !this.validatePassword(password)) {
+                    this.showError('Пожалуйста, исправьте ошибки в форме');
+                    return;
+                }
+
+                if (password !== confirm) {
+                    this.showError('Пароли не совпадают!');
+                    return;
+                }
+
+                if (storage.users.find(u => u.email === email)) {
+                    this.showError('Этот email уже зарегистрирован!');
+                    return;
+                }
+
+                const newUser = {
+                    username,
+                    email,
+                    password,
+                    role: 'Игрок',
+                    registrationDate: new Date().toISOString(),
+                    lastSeen: new Date().toISOString(),
+                    applicationStatus: 'pending',
+                    avatar: null,
+                    banner: null,
+                    photos: []
+                };
+
+                storage.addUser(newUser);
+                storage.applications.push({
+                    username,
+                    date: new Date().toISOString(),
+                    status: 'pending',
+                    type: 'server'
+                });
+
+                storage.addNotification({
+                    title: 'Регистрация успешна!',
+                    message: `Аккаунт ${username} создан. Анкета отправлена на рассмотрение.`,
+                    type: 'success'
+                });
+
+                document.getElementById('login-username').value = username;
+                document.getElementById('login-password').value = '';
+                showLogin();
+                this.showSuccess('Аккаунт успешно создан! Теперь вы можете войти.');
+            }
+
+            showError(message) {
+                this.showMessage(message, '#ff4444');
+            }
+
+            showSuccess(message) {
+                this.showMessage(message, '#00ff00');
+            }
+
+            showMessage(message, color) {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(15,20,25,0.95);
+                    color: ${color};
+                    padding: 1rem 2rem;
+                    border-radius: 10px;
+                    border: 2px solid ${color};
+                    z-index: 3000;
+                    font-weight: 600;
+                `;
+                messageDiv.textContent = message;
+                document.body.appendChild(messageDiv);
+
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 3000);
+            }
+
+            logout() {
+                storage.currentUser = null;
+                storage.addNotification({
+                    title: 'Выход из системы',
+                    message: 'Вы успешно вышли из аккаунта',
+                    type: 'info'
+                });
+                this.updateUI();
+                showLogin();
+                closeAuthModal();
+            }
+
+            updateUI() {
+                if (storage.currentUser) {
+                    this.profileButton.textContent = storage.currentUser.username;
+                    this.profileButton.style.background = this.getRoleColor(storage.currentUser.role);
+                } else {
+                    this.profileButton.textContent = '🚪 Войти';
+                    this.profileButton.style.background = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+                }
+            }
+
+            getRoleColor(role) {
+                const colors = {
+                    'Владелец сайта': 'linear-gradient(135deg, #ff0000, #ff6b6b)',
+                    'Владелец': 'linear-gradient(135deg, #aa00aa, #d500d5)',
+                    'Кодер': 'linear-gradient(135deg, #00aa00, #00d500)',
+                    'Дата-Пакер': 'linear-gradient(135deg, #00aaaa, #00d5d5)',
+                    'Ресурспакер': 'linear-gradient(135deg, #aa5500, #d58000)',
+                    'Дизайнер': 'linear-gradient(135deg, #aa00aa, #d500d5)',
+                    'Маркетолог': 'linear-gradient(135deg, #5500aa, #8000d5)',
+                    'Куратор': 'linear-gradient(135deg, #0055aa, #0080d5)',
+                    'Основатель': 'linear-gradient(135deg, #aa0055, #d50080)',
+                    'Игрок': 'linear-gradient(135deg, var(--primary), var(--secondary))'
+                };
+                return colors[role] || colors['Игрок'];
+            }
+        }
+
+        const authSystem = new AuthSystem();
+
+        // ===== УЛУЧШЕННАЯ СИСТЕМА ПРОФИЛЯ =====
+        class ProfileSystem {
+            constructor() {
+                this.profileContent = document.getElementById('profile-content');
+            }
+
+            renderProfile() {
+                if (!storage.currentUser) return;
+
+                const user = storage.currentUser;
+                this.profileContent.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 3rem;">
+                        <div style="position: relative; display: inline-block;">
+                            <div style="width: 150px; height: 150px; border-radius: 50%; 
+                                       background: rgba(255,255,255,0.1); margin: 0 auto 1.5rem; 
+                                       border: 4px solid ${authSystem.getRoleColor(user.role).split(' ')[0]}; 
+                                       overflow: hidden; position: relative;">
+                                ${user.avatar ? 
+                                    `<img src="${user.avatar}" style="width: 100%; height: 100%; object-fit: cover;">` : 
+                                    '<div style="font-size: 4rem; line-height: 150px;">👤</div>'
+                                }
+                                <button onclick="changeAvatar()" style="position: absolute; bottom: 10px; right: 10px; 
+                                       background: rgba(0,0,0,0.7); border: none; border-radius: 50%; 
+                                       width: 40px; height: 40px; color: white; cursor: pointer;">📷</button>
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <h2 style="color: var(--light); margin-bottom: 0.5rem;">${user.username}</h2>
+                                <span style="background: ${authSystem.getRoleColor(user.role).split(' ')[0]}; 
+                                      padding: 0.5rem 1.5rem; border-radius: 20px; font-size: 1rem; font-weight: 600;">
+                                    ${user.role}
+                                </span>
+                            </div>
+                            
+                            <div style="opacity: 0.8; font-size: 0.9rem;">
+                                <div>📧 ${user.email}</div>
+                                <div>📅 Зарегистрирован: ${new Date(user.registrationDate).toLocaleDateString('ru-RU')}</div>
+                                <div>👀 Последний вход: ${new Date(user.lastSeen).toLocaleString('ru-RU')}</div>
+                            </div>
+                        </div>
+
+                        <div style="margin: 2rem 0; padding: 1.5rem; background: rgba(255,255,255,0.05); 
+                                   border-radius: 15px; border-left: 4px solid ${
+                                       user.applicationStatus === 'accepted' ? '#00ff00' :
+                                       user.applicationStatus === 'rejected' ? '#ff4444' : '#ffff00'
+                                   };">
+                            <strong>📋 Статус анкеты: </strong>
+                            <span style="color: ${
+                                user.applicationStatus === 'accepted' ? '#00ff00' :
+                                user.applicationStatus === 'rejected' ? '#ff4444' : '#ffff00'
+                            }; font-weight: 700;">
+                                ${user.applicationStatus === 'accepted' ? '✅ Принята' :
+                                  user.applicationStatus === 'rejected' ? '❌ Отклонена' : '⏳ На рассмотрении'}
+                            </span>
+                            ${user.applicationStatus === 'accepted' ? 
+                                '<div style="margin-top: 0.5rem; color: #00ff00;">🎮 IP сервера доступен в разделе "Начать играть"</div>' : 
+                                ''
+                            }
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 3rem;">
+                        <button class="btn-primary" onclick="showApplicationForm()" 
+                                style="padding: 1.2rem; font-size: 1.1rem;">
+                            📝 Анкета на сервер
+                        </button>
+                        <button class="btn-primary" onclick="showStudioApplication()" 
+                                style="padding: 1.2rem; font-size: 1.1rem;">
+                            🎨 Анкета в студию
+                        </button>
+                        <button class="btn-primary" onclick="showGallery()" 
+                                style="padding: 1.2rem; font-size: 1.1rem;">
+                            🖼️ Моя галерея
+                        </button>
+                        <button class="btn-primary" onclick="showSettings()" 
+                                style="padding: 1.2rem; font-size: 1.1rem;">
+                            ⚙️ Настройки
+                        </button>
+                    </div>
+
+                    ${this.isAdmin(user) ? `
+                        <button class="btn-primary" onclick="showAdminPanel()" 
+                                style="width: 100%; padding: 1.2rem; margin-bottom: 1.5rem; 
+                                       background: linear-gradient(135deg, #ffaa00, #ffcc00);">
+                            👑 Панель администратора
+                        </button>
+                    ` : ''}
+
+                    <button class="btn-primary" onclick="authSystem.logout()" 
+                            style="width: 100%; padding: 1.2rem; 
+                                   background: linear-gradient(135deg, #ff4444, #ff6b6b);">
+                        🚪 Выйти из аккаунта
+                    </button>
+                `;
+            }
+
+            isAdmin(user) {
+                return user.role.includes('Владелец') || 
+                       user.role.includes('Администратор') || 
+                       user.role.includes('Куратор') ||
+                       user.role === 'Владелец сайта';
+            }
+        }
+
+        const profileSystem = new ProfileSystem();
+
+        // ===== УЛУЧШЕННЫЕ ФУНКЦИИ ИНТЕРФЕЙСА =====
+        function toggleAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (storage.currentUser) {
+                showProfile();
+            } else {
+                showLogin();
+            }
+            modal.style.display = 'block';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function showLogin() {
+            document.querySelectorAll('.auth-section').forEach(section => section.classList.remove('active'));
+            document.getElementById('login-section').classList.add('active');
+        }
+
+        function showRegister() {
+            document.querySelectorAll('.auth-section').forEach(section => section.classList.remove('active'));
+            document.getElementById('register-section').classList.add('active');
+        }
+
+        function showProfile() {
+            document.querySelectorAll('.auth-section').forEach(section => section.classList.remove('active'));
+            document.getElementById('profile-section').classList.add('active');
+            profileSystem.renderProfile();
+        }
+
+        function toggleNotifications() {
+            notificationSystem.togglePopup();
+        }
+
+        function markNotificationRead(id) {
+            const notification = storage.notifications.find(n => n.id === id);
+            if (notification) {
+                notification.read = true;
+                storage.saveAll();
+                notificationSystem.updateCount();
+                notificationSystem.updateList();
+            }
+        }
+
+        function clearNotifications() {
+            storage.clearNotifications();
+            notificationSystem.updateCount();
+            notificationSystem.updateList();
+        }
+
+        function startPlaying() {
+            if (!storage.currentUser) {
+                toggleAuthModal();
+                storage.addNotification({
+                    title: 'Требуется вход',
+                    message: 'Для доступа к серверу необходимо войти в аккаунт',
+                    type: 'warning'
+                });
+                return;
+            }
+
+            if (storage.currentUser.applicationStatus !== 'accepted') {
+                storage.addNotification({
+                    title: 'Анкета не одобрена',
+                    message: 'Ожидайте решения администрации по вашей анкете',
+                    type: 'warning'
+                });
+                
+                // Создаем красивое модальное окно с информацией
+                showApplicationStatusModal();
+                return;
+            }
+
+            // Показываем IP сервера в красивом модальном окне
+            showServerInfoModal();
+        }
+
+        function showApplicationStatusModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                backdrop-filter: blur(20px);
+                z-index: 3000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: modal-appear 0.4s ease-out;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(15,20,25,0.95), rgba(10,14,18,0.98));
+                          padding: 3rem;
+                          border-radius: 25px;
+                          border: 3px solid #ffff00;
+                          max-width: 500px;
+                          text-align: center;
+                          animation: content-scale 0.4s ease-out;">
+                    <h2 style="color: #ffff00; margin-bottom: 1.5rem;">⏳ Ожидание одобрения</h2>
+                    <p style="margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.6;">
+                        Ваша анкета находится на рассмотрении у администрации сервера.<br>
+                        Обычно это занимает 1-3 дня.
+                    </p>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            class="btn-primary" style="background: linear-gradient(135deg, #ffff00, #ffaa00);">
+                        Понятно
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function showServerInfoModal() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                backdrop-filter: blur(20px);
+                z-index: 3000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, rgba(15,20,25,0.95), rgba(10,14,18,0.98));
+                          padding: 3rem;
+                          border-radius: 25px;
+                          border: 3px solid #00ff00;
+                          max-width: 500px;
+                          text-align: center;">
+                    <h2 style="color: #00ff00; margin-bottom: 2rem;">🎮 Добро пожаловать на сервер!</h2>
+                    
+                    <div style="background: rgba(0,255,0,0.1); padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem;">
+                        <h3 style="color: #00ff00; margin-bottom: 1rem;">📡 Данные для подключения:</h3>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; 
+                                  background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px;
+                                  margin: 1rem 0; color: #00ff00;">
+                            IP: <strong>jmsmp.minecraft.ru</strong><br>
+                            Порт: <strong>25565</strong>
+                        </div>
+                    </div>
+
+                    <p style="margin-bottom: 2rem; opacity: 0.8;">
+                        📥 Не забудьте скачать лаунчер: 
+                        <a href="https://easylauncher.org" style="color: var(--secondary);">easylauncher.org</a>
+                    </p>
+
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            class="btn-primary" style="background: linear-gradient(135deg, #00ff00, #00aa00);">
+                        Спасибо!
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // ===== УЛУЧШЕННЫЕ АНИМАЦИИ ПРОКРУТКИ =====
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        function setupHeaderScroll() {
+            const header = document.getElementById('main-header');
+            let lastScrollY = window.scrollY;
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+
+                // Параллакс эффект для фона
+                const scrolled = window.pageYOffset;
+                const parallax = document.querySelector('.hero::before');
+                if (parallax) {
+                    parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
+
+                lastScrollY = window.scrollY;
+            });
+        }
+
+        // ===== ЗАГЛУШКИ ДЛЯ БУДУЩИХ ФУНКЦИЙ =====
+        function changeAvatar() {
+            storage.addNotification({
+                title: 'Смена аватарки',
+                message: 'Функция загрузки аватарки скоро будет доступна',
+                type: 'info'
+            });
+        }
+
+        function showApplicationForm() {
+            storage.addNotification({
+                title: 'Анкета на сервер',
+                message: 'Система анкет находится в разработке',
+                type: 'info'
+            });
+        }
+
+        function showStudioApplication() {
+            storage.addNotification({
+                title: 'Анкета в студию',
+                message: 'Набор в студию временно закрыт',
+                type: 'info'
+            });
+        }
+
+        function showGallery() {
+            storage.addNotification({
+                title: 'Фотогалерея',
+                message: 'Система галереи готовится к запуску',
+                type: 'info'
+            });
+        }
+
+        function showSettings() {
+            storage.addNotification({
+                title: 'Настройки аккаунта',
+                message: 'Раздел настроек находится в разработке',
+                type: 'info'
+            });
+        }
+
+        function showAdminPanel() {
+            storage.addNotification({
+                title: 'Панель администратора',
+                message: 'Админ-панель будет доступна в ближайшем обновлении',
+                type: 'info'
+            });
+        }
+
+        // ===== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация систем
+            particleSystem.createParticles('winter');
+            seasonTimer.start();
+            notificationSystem.updateCount();
+            authSystem.updateUI();
+            setupScrollAnimations();
+            setupHeaderScroll();
+
+            // Установка обработчиков
+            document.getElementById('season-selector').addEventListener('change', function(e) {
+                particleSystem.createParticles(e.target.value);
+            });
+
+            // Закрытие модальных окон при клике вне их
+            window.addEventListener('click', function(e) {
+                const modal = document.getElementById('auth-modal');
+                if (e.target === modal) {
+                    closeAuthModal();
+                }
+
+                const notificationPopup = document.getElementById('notification-popup');
+                if (!notificationPopup.contains(e.target) && !e.target.closest('.notification-bell')) {
+                    notificationPopup.style.display = 'none';
+                }
+            });
+
+            // Добавляем CSS для анимации падения частиц
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fall {
+                    0% { 
+                        transform: translateY(-100px) rotate(0deg);
+                        opacity: 0;
+                    }
+                    10% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% { 
+                        transform: translateY(100vh) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+
+                @keyframes swing {
+                    0%, 100% { transform: translateX(0px); }
+                    50% { transform: translateX(20px); }
+                }
+
+                @keyframes modal-appear {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes content-scale {
+                    from { transform: scale(0.8); opacity: 0; }
+                    to { transform: scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Приветственное сообщение
+            setTimeout(() => {
+                if (!storage.currentUser) {
+                    storage.addNotification({
+                        title: 'Добро пожаловать! 🎉',
+                        message: 'Зарегистрируйтесь, чтобы получить доступ ко всем функциям сервера',
+                        type: 'welcome'
+                    });
+                    notificationSystem.updateCount();
+                }
+            }, 2000);
+        });
+
+        // ===== ДОПОЛНИТЕЛЬНЫЕ УЛУЧШЕНИЯ =====
+        // Эффект печатающего текста для заголовка
+        function typeWriterEffect() {
+            const title = document.querySelector('.hero h1');
+            const text = title.textContent;
+            title.textContent = '';
+            let i = 0;
+            
+            function type() {
+                if (i < text.length) {
+                    title.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                }
+            }
+            type();
+        }
+
+        // Запускаем эффект при загрузке
+        window.addEventListener('load', typeWriterEffect);
+
+        // Система горячих клавиш
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        if (!storage.currentUser) {
+                            toggleAuthModal();
+                        } else {
+                            startPlaying();
+                        }
+                        break;
+                    case 'Escape':
+                        closeAuthModal();
+                        document.getElementById('notification-popup').style.display = 'none';
+                        break;
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
+
