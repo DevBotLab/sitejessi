@@ -1,5 +1,30 @@
 const mongoose = require('mongoose');
 
+// Определите notificationSchema в начале
+const notificationSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ['welcome', 'success', 'warning', 'error', 'info'],
+    default: 'info'
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  read: {
+    type: Boolean,
+    default: false
+  },
+});
+// Определите userSchema с ВСЕМИ полями внутри
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -39,14 +64,11 @@ const userSchema = new mongoose.Schema({
     ],
     default: 'Игрок'
   },
-  
-  notifications: [notificationSchema],
+  notifications: [notificationSchema], // Используем notificationSchema для массива
   photosCount: {
     type: Number,
     default: 0
-    }
   },
-
   applicationStatus: {
     type: String,
     enum: ['pending', 'accepted', 'rejected'],
@@ -67,60 +89,6 @@ const userSchema = new mongoose.Schema({
   registrationDate: {
     type: Date,
     default: Date.now
-  },
-  notifications: [{
-    title: String,
-    message: String,
-    type: {
-      type: String,
-      enum: ['welcome', 'success', 'warning', 'error', 'info'],
-      default: 'info'
-    },
-    date: {
-      type: Date,
-      default: Date.now
-    },
-    read: {
-      type: Boolean,
-      default: false
-    }
-  }]
-}, {
-  timestamps: true
-});
-
-const applicationSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    ref: 'User'
-  },
-  type: {
-    type: String,
-    enum: ['server', 'studio'],
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'accepted', 'rejected'],
-    default: 'pending'
-  },
-  answers: {
-    type: Map,
-    of: String
-  },
-  reviewedBy: {
-    type: String,
-    ref: 'User',
-    default: null
-  },
-  reviewDate: {
-    type: Date,
-    default: null
-  },
-  telegramMessageId: {
-    type: Number,
-    default: null
   }
 }, {
   timestamps: true
@@ -167,31 +135,7 @@ const photoSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-// Добавляем в существующий файл после photoSchema
 
-const notificationSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ['welcome', 'success', 'warning', 'error', 'info'],
-    default: 'info'
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  read: {
-    type: Boolean,
-    default: false
-  },
-});
 
 const User = mongoose.model('User', userSchema);
 const Application = mongoose.model('Application', applicationSchema);
