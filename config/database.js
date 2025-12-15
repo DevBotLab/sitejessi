@@ -40,13 +40,12 @@ const userSchema = new mongoose.Schema({
     default: 'Игрок'
   },
   
-userSchema.add({
   notifications: [notificationSchema],
   photosCount: {
     type: Number,
     default: 0
     }
-  });
+  },
 
   applicationStatus: {
     type: String,
